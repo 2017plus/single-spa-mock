@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <a href="#/a">a应用</a>
+    <a href="#/b">b应用</a>
+    <div id="rootcontainer"></div>
+
+    <script type="module">
+        import { registerApplication, start } from './single-spa/singleSpa.js';
+        let app1 = {
+            bootstrap: async () => {
+                console.log('bootstrap1')
+            },
+            mount: async () => {
+                console.log('mount1');
+                rootcontainer.innerHTML = 'APP1'
+            },
+            unmount: async () => {
+                console.log('unmount1');
+            },
+        }
+
+        let app2 = {
+            bootstrap: [
+                async () => {
+                    console.log('2bootstrap1')
+                },
+                async () => {
+                    console.log('2bootstrap2')
+                }
+            ],
+            mount: [
+                async () => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            resolve();
+                            console.log('2mount');
+                            rootcontainer.innerHTML = 'APP2'
+                        }, 1000);
+                    })
+                },
+            ],
+            unmount: [
+                async () => {
+                    console.log('2unmount1');
+                },
+                async () => {
+                    console.log('2unmount2');
+                },
+            ],
+        }
+
+        registerApplication('a', async (props) => app1, (location) => location.hash.startsWith('#/a'), { a: 1 })
+        registerApplication('b', async (props) => app2, (location) => location.hash.startsWith('#/b'), { b: 1 })
+        start();
+
+
+        window.addEventListener('hashchange', function () {
+            console.log(window.location.hash, '=====子应用');
+        });
+    </script>
+
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/single-spa/5.9.5/umd/single-spa.dev.js"></script>
+    <script>
+        const { registerApplication, start } = singleSpa;
+        let app1 = {
+            bootstrap: [
+                async () => {
+                    console.log('bootstrap1')
+                },
+                async () => {
+                    console.log('bootstrap2')
+                }
+            ],
+            mount: [
+                async () => {
+                    console.log('mount1');
+                    app.innerHTML = 'APP1'
+                },
+                async () => {
+                    console.log('mount2');
+                },
+            ],
+            unmount: [
+                async () => {
+                    console.log('unmount1');
+                },
+                async () => {
+                    console.log('unmount2');
+                },
+            ],
+        }
+
+        let app2 = {
+            bootstrap: [
+                async () => {
+                    console.log('2bootstrap1')
+                },
+                async () => {
+                    console.log('2bootstrap2')
+                }
+            ],
+            mount: [
+                async () => {
+                    console.log('2mount1');
+                    app.innerHTML = 'APP2'
+                },
+                async () => {
+                    console.log('2mount2');
+                },
+            ],
+            unmount: [
+                async () => {
+                    console.log('2unmount1');
+                },
+                async () => {
+                    console.log('2unmount2');
+                },
+            ],
+        }
+
+        registerApplication('a', async () => app1, (location) => location.hash.startsWith('#/a'))
+        registerApplication('b', async () => app2, (location) => location.hash.startsWith('#/b'))
+        start();
+    </script> -->
+
+</body>
+
+</html>
